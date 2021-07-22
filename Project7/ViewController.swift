@@ -81,16 +81,20 @@ class ViewController: UITableViewController {
 //Challenge 2 - Let users filter the petitions they see.
     
     @objc func searchTapped() {
-        let ac = UIAlertController(title: "Search keyword", message: nil, preferredStyle: .alert)
-        ac.addTextField()
-        
-        let submitAction = UIAlertAction(title: "Submit", style: .default) { [weak ac, self] _ in
-            guard let keyword = ac?.textFields?[0].text else { return }
-            self.filter(answer: keyword)
+//Challenge 3 Day 40: Modify project 7 so that your filtering code takes place in the background.
+        DispatchQueue.main.async { [weak self] in
+            let ac = UIAlertController(title: "Search keyword", message: nil, preferredStyle: .alert)
+            ac.addTextField()
+            
+            let submitAction = UIAlertAction(title: "Submit", style: .default) { [weak ac, self] _ in
+                guard let keyword = ac?.textFields?[0].text else { return }
+                self?.filter(answer: keyword)
+            }
+            
+            ac.addAction(submitAction)
+            self?.present(ac, animated: true)
         }
-        
-        ac.addAction(submitAction)
-        present(ac, animated: true)
+
         
     }
     
