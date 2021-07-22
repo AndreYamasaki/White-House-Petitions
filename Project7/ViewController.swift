@@ -41,27 +41,31 @@ class ViewController: UITableViewController {
                     self?.parse(json: data)
                     return
                 }
-                
-                self?.showError()
             }
+            self?.showError()
         }
-
-        
     }
     
     //MARK: - Methods
     
     func showError() {
-        let ac = UIAlertController(title: "Loading error", message: "There was a problem loading the feed", preferredStyle: .alert)
-        ac.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        present(ac, animated: true)
+        
+        DispatchQueue.main.async { [weak self] in
+            
+            let ac = UIAlertController(title: "Loading error", message: "There was a problem loading the feed", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            self?.present(ac, animated: true)
+        }
+        
     }
     
     func parse(json: Data) {
         let decoder = JSONDecoder()
         if let jsonPetitions = try? decoder.decode(Petitions.self, from: json) {
             petitions = jsonPetitions.results
-            tableView.reloadData()
+            DispatchQueue.main.async { [weak self] in
+                self?.tableView.reloadData()
+            }
         }
     }
     
