@@ -26,6 +26,13 @@ class ViewController: UITableViewController {
         
         navigationItem.leftBarButtonItems = [filter, reset]
         
+        performSelector(inBackground: #selector(fetchJSON), with: nil)
+        
+    }
+    
+    //MARK: - Methods
+    
+   @objc func fetchJSON() {
         let urlString: String
         
         if navigationController?.tabBarItem.tag == 0 {
@@ -34,28 +41,21 @@ class ViewController: UITableViewController {
             urlString = "https://www.hackingwithswift.com/samples/petitions-2.json"
         }
         
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             if let url = URL(string: urlString) {
 
                 if let data = try? Data(contentsOf: url) {
-                    self?.parse(json: data)
+                    parse(json: data)
                     return
                 }
             }
-            self?.showError()
-        }
+    performSelector(onMainThread: #selector(showError), with: nil, waitUntilDone: false)
     }
     
-    //MARK: - Methods
-    
-    func showError() {
+   @objc func showError() {
         
-        DispatchQueue.main.async { [weak self] in
-            
             let ac = UIAlertController(title: "Loading error", message: "There was a problem loading the feed", preferredStyle: .alert)
             ac.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-            self?.present(ac, animated: true)
-        }
+            present(ac, animated: true)
         
     }
     
@@ -63,9 +63,10 @@ class ViewController: UITableViewController {
         let decoder = JSONDecoder()
         if let jsonPetitions = try? decoder.decode(Petitions.self, from: json) {
             petitions = jsonPetitions.results
-            DispatchQueue.main.async { [weak self] in
-                self?.tableView.reloadData()
-            }
+            
+            tableView.performSelector(onMainThread: #selector(UITableView.reloadData), with: nil, waitUntilDone: false)
+        } else {
+            performSelector(onMainThread: #selector(showError), with: nil, waitUntilDone: false)
         }
     }
     
